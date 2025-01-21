@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanish 2 Review Tool(made by Kritagya Gupta)</title>
+  <style>
+    /* General styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #f9c74f, #f9844a);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      padding: 20px 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-family: 'Courier New', cursive;
+      font-size: 3rem;
+      margin: 0;
+      color: #f3722c;
+    }
+
+    main {
+      flex-grow: 1;
+      max-width: 900px;
+      margin: 30px auto;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    section {
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      color: #f94144;
+      border-bottom: 3px solid #f94144;
+      padding-bottom: 5px;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: #f9844a;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style-type: square;
+      padding-left: 20px;
+    }
+
+    button {
+      background-color: #f94144;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #d93737;
+    }
+
+    input[type="text"] {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin-top: 10px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .unit-section {
+      margin-bottom: 40px;
+      padding: 20px;
+      background-color: #f7f7f7;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Spanish 2</h1>
+  </header>
+  <main>
+    <section>
+      <h2>About the Course</h2>
+      <p>Spanish 2 is an immersive course designed to help students build on their foundational knowledge. 
+        You'll learn advanced grammar, improve conversational skills, and explore the rich cultures of Spanish-speaking countries.</p>
+    </section>
+    <section>
+      <h2>Course Information</h2>
+      <p><strong>Teacher:</strong> Mr. Garrido</p>
+      <p><strong>Schedule:</strong><br>Tuesday: 9:45AM - 11:10AM<br>Thursday: 1:00PM - 1:50PM<br>Friday: 1:50PM - 3:20PM</p>
+      <p><strong>Location:</strong> Upper Coach House 2</p>
+      <p><strong>Contact:</strong> jmgarrido@tasisengland.org</p>
+    </section>
+    <section>
+      <h2>Units</h2>
+      <button id="toggle-review-mode">Enable Review Mode</button>
+      <div id="unit-list">
+        <!-- Units will be dynamically added here -->
+      </div>
+      <div id="add-unit-section">
+        <h3>Add a New Unit:</h3>
+        <input type="text" id="new-unit" placeholder="Enter unit name (e.g., 1A, 2B)">
+        <button id="add-unit-btn">Add Unit</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const unitList = document.getElementById('unit-list');
+    const addUnitBtn = document.getElementById('add-unit-btn');
+    const newUnitInput = document.getElementById('new-unit');
+    const toggleReviewModeBtn = document.getElementById('toggle-review-mode');
+    const addUnitSection = document.getElementById('add-unit-section');
+    let reviewMode = false;
+
+    // Load units from localStorage
+    function loadUnits() {
+      const storedUnits = localStorage.getItem('units');
+      if (storedUnits) {
+        JSON.parse(storedUnits).forEach(unit => addUnitToPage(unit));
+      }
+    }
+
+    // Save units to localStorage
+    function saveUnits() {
+      const units = Array.from(unitList.children).map(unit => unit.dataset.unit);
+      localStorage.setItem('units', JSON.stringify(units));
+    }
+
+    // Add unit to the page
+    function addUnitToPage(unitName) {
+      const unitSection = document.createElement('div');
+      unitSection.className = 'unit-section';
+      unitSection.dataset.unit = unitName;
+
+      unitSection.innerHTML = `
+        <h3>${unitName}</h3>
+        <h4>Vocabulary</h4>
+        <ul class="vocab-list"></ul>
+        <div class="add-vocab-section">
+          <input type="text" class="new-vocab" placeholder="Add a vocabulary word">
+          <button class="add-vocab-btn">Add Vocabulary</button>
+        </div>
+        <h4>Structures</h4>
+        <ul class="structure-list"></ul>
+        <div class="add-structure-section">
+          <input type="text" class="new-structure" placeholder="Enter a structure">
+          <input type="text" class="new-example" placeholder="Enter an example">
+          <button class="add-structure-btn">Add Structure</button>
+        </div>
+      `;
+
+      // Add functionality for vocab and structure
+      const vocabList = unitSection.querySelector('.vocab-list');
+      const addVocabBtn = unitSection.querySelector('.add-vocab-btn');
+      const newVocabInput = unitSection.querySelector('.new-vocab');
+
+      const structureList = unitSection.querySelector('.structure-list');
+      const addStructureBtn = unitSection.querySelector('.add-structure-btn');
+      const newStructureInput = unitSection.querySelector('.new-structure');
+      const newExampleInput = unitSection.querySelector('.new-example');
+
+      // Add vocab event
+      addVocabBtn.addEventListener('click', () => {
+        const newVocab = newVocabInput.value.trim();
+        if (newVocab) {
+          const listItem = document.createElement('li');
+          listItem.textContent = newVocab;
+          vocabList.appendChild(listItem);
+          newVocabInput.value = '';
+        }
+      });
+
+      // Add structure event
+      addStructureBtn.addEventListener('click', () => {
+        const newStructure = newStructureInput.value.trim();
+        const newExample = newExampleInput.value.trim();
+        if (newStructure && newExample) {
+          const listItem = document.createElement('li');
+          listItem.innerHTML = `<strong>${newStructure}</strong>: ${newExample}`;
+          structureList.appendChild(listItem);
+          newStructureInput.value = '';
+          newExampleInput.value = '';
+        }
+      });
+
+      unitList.appendChild(unitSection);
+    }
+
+    // Toggle review mode
+    toggleReviewModeBtn.addEventListener('click', () => {
+      reviewMode = !reviewMode;
+      document.querySelectorAll('button, input').forEach(el => {
+        if (!el.id.includes('toggle-review-mode')) {
+          el.style.display = reviewMode ? 'none' : '';
+        }
+      });
+      toggleReviewModeBtn.textContent = reviewMode ? 'Disable Review Mode' : 'Enable Review Mode';
+    });
+
+    // Add unit event
+    addUnitBtn.addEventListener('click', () => {
+      const newUnit = newUnitInput.value.trim();
+      if (newUnit) {
+        addUnitToPage(newUnit);
+        saveUnits();
+        newUnitInput.value = '';
+      }
+    });
+
+    // Load units on page load
+    loadUnits();
+  </script>
+</body>
+</html>
